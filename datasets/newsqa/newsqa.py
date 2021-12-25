@@ -236,22 +236,7 @@ class Newsqa(datasets.GeneratorBasedBuilder):
     def _generate_examples(self, filepath, split):
         """Yields examples."""
 
-        if self.config.name == "combined-csv":
-            with open(filepath, encoding="utf-8") as csv_file:
-                csv_reader = csv.reader(
-                    csv_file, quotechar='"', delimiter=",", quoting=csv.QUOTE_ALL, skipinitialspace=True
-                )
-                next(csv_reader)
-                for row in csv_reader:
-                    if row:
-                        yield f"{row[0]}_{hash(row[1])}", {
-                            "story_id": row[0],
-                            "story_text": row[-1],
-                            "question": row[1],
-                            "answer_char_ranges": str(row[2:-2]),
-                        }
-
-        elif self.config.name == "combined-json":
+        if self.config.name == "combined-json":
             with open(filepath, encoding="utf-8") as f:
                 d = json.load(f)
                 data = d["data"]
@@ -318,11 +303,16 @@ class Newsqa(datasets.GeneratorBasedBuilder):
                     csv_file, quotechar='"', delimiter=",", quoting=csv.QUOTE_ALL, skipinitialspace=True
                 )
                 next(csv_reader)
-                for row in csv_reader:
+                for i, row in enumerate(csv_reader):
                     if row:
-                        yield f"{row[0]}_{hash(row[2])}", {
-                            "story_id": row[0],
-                            "story_text": row[1],
-                            "question": row[2],
-                            "answer_token_ranges": row[3],
-                        }
+                        dict_ = {"story_id": row[0]}
+                        if self.config.name == "combined-csv":
+                            dict_["story_text"] = row[-1]
+                            dict_["question"] = row[1]
+                            dict_["answer_char_ranges"] = str(row[2:-2])
+                        else:
+                            dict_["story_text"] = row[1]
+                            dict_["question"] = row[2]
+                            dict_["answer_token_ranges"] = row[3]
+
+                        yield i, dict_
