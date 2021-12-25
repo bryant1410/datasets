@@ -241,10 +241,10 @@ class Newsqa(datasets.GeneratorBasedBuilder):
                 csv_reader = csv.reader(
                     csv_file, quotechar='"', delimiter=",", quoting=csv.QUOTE_ALL, skipinitialspace=True
                 )
-                _ = next(csv_reader)
-                for id_, row in enumerate(csv_reader):
+                next(csv_reader)
+                for row in csv_reader:
                     if row:
-                        yield row[0], {
+                        yield f"{row[0]}_{hash(row[1])}", {
                             "story_id": row[0],
                             "story_text": row[-1],
                             "question": row[1],
@@ -314,15 +314,13 @@ class Newsqa(datasets.GeneratorBasedBuilder):
                     }
         else:
             with open(filepath, encoding="utf-8") as csv_file:
-
                 csv_reader = csv.reader(
                     csv_file, quotechar='"', delimiter=",", quoting=csv.QUOTE_ALL, skipinitialspace=True
                 )
-                _ = next(csv_reader)
-                for id_, row in enumerate(csv_reader):
+                next(csv_reader)
+                for row in csv_reader:
                     if row:
-                        # print (row)
-                        yield row[0], {
+                        yield f"{row[0]}_{hash(row[2])}", {
                             "story_id": row[0],
                             "story_text": row[1],
                             "question": row[2],
